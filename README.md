@@ -94,12 +94,9 @@ System always defaults to **safe OFF state**.
 
 ## 📸 Demo
 
-### UI
 
-![UI Main](images/UI.png)
-![UI Graph](images/UI1.png)
-![UI Graph 2](images/UI2.png)
-![UI Graph 3](images/UI3.png)
+In Images section
+
 
 ### Hardware
 
