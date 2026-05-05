@@ -123,7 +123,7 @@ Being explicit here:
 ## 📸 Demo
 
 ![UI](images/ui.png)  
-![Hardware](images/hardware.jpg)
+![Hardware](images/hardware.png)
 
 ---
 
