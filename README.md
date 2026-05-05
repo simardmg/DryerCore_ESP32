@@ -1,18 +1,18 @@
-# # 🔥 ESP32 Smart Filament Dryer Core
+# 🔥 ESP32 Smart Dryer Core
 
-Cheap ESP32-based filament dryer with real-time web dashboard, dual-core tasking, and safety-focused control logic.
+ESP32-based filament dryer with real-time web dashboard, dual-core tasking, and safety-focused control logic.
 
 ---
 
 ## 🚀 Features
 
 - Real-time temperature & humidity monitoring
-- Auto profiles (PLA, PETG, ABS, Nylon, etc.)
-- Manual override control
+- Auto profiles (PLA, PETG, ABS, Nylon)
+- Manual ON/OFF override
 - Safety systems:
   - Sensor timeout shutdown
   - Thermal cutoff (70°C)
-- Live web dashboard with telemetry + graphs
+- Live web dashboard with real-time graphs
 
 ---
 
@@ -23,24 +23,24 @@ Cheap ESP32-based filament dryer with real-time web dashboard, dual-core tasking
 - Core 0 → Control loop (sensor + relay + safety)
 - Core 1 → Web server (UI + API)
 
-Why this matters:
-- Control loop stays deterministic
-- Web requests cannot block heating logic
-- System remains responsive under load
+This separation ensures:
+- Control loop is not blocked by network requests
+- Stable timing for heater control
+- Responsive UI
 
 ---
 
 ### Thin Client / Server Model
 
-- ESP32 acts as backend server
-- Browser acts as thick client
+- ESP32 acts as thin backend server
+- Browser UI is a thick client
 - REST endpoints:
   - `/data` → telemetry (JSON)
-  - `/cmd` → control commands
+  - `/cmd` → control actions
 
 ---
 
-## ⚙️ Control Strategy
+## ⚙️ Control Logic
 
 ### State Machine
 
@@ -51,88 +51,87 @@ System operates in:
 - MANUAL ON  
 - MANUAL OFF  
 
-This avoids ambiguous states and keeps behavior predictable.
-
 ---
 
-### Hysteresis Control (Relay Protection)
-
-Instead of switching exactly at target temperature:
+### Hysteresis-Based Control
 
 - Heater ON → below (target - hysteresis)
 - Heater OFF → at/above target
 
 Why:
-- Reduces rapid relay toggling
+- Reduces relay chatter
+- Improves stability
 - Extends relay life
-- Stabilizes temperature band
 
 ---
 
-### Safety Logic (Fail-Safe First)
+## 🛡️ Safety Design
 
 - Sensor timeout → system shuts down
 - Over-temperature → immediate cutoff
 - Manual mode timeout → prevents runaway heating
 
-System always defaults to **safe OFF state** on failure.
+System always defaults to **safe OFF state**.
 
 ---
 
-## 🧠 Real-Time Design Decisions
+## 🧠 Real-Time Design Choices
 
 - FreeRTOS tasks pinned to separate cores
-- Watchdog timer prevents system lockups
-- Non-blocking timing using `millis()` (no delay-based control)
-- Control loop runs independently of web stack
+- Watchdog timer for reliability
+- Non-blocking control using `millis()`
+- Control loop isolated from web server
 
 ---
 
 ## 🧮 Memory Strategy
 
 - No dynamic allocation in control loop
-- Fixed-size buffers for JSON + state
-- HTML stored in flash (PROGMEM)
-
-Reason:
-- Prevent heap fragmentation
-- Ensure long-term stability
+- Fixed-size buffers
+- HTML UI stored in flash (PROGMEM)
 
 ---
 
-## ⚠️ What’s NOT implemented (yet)
+## 📸 Demo
 
-Being explicit here:
+### UI
 
-- No PID control (only hysteresis)
-- No relay minimum ON/OFF lockout timing
-- No persistent logging
-- No OTA updates
+![UI Main](images/UI.png)
+![UI Graph](images/UI1.png)
+![UI Graph 2](images/UI2.png)
+![UI Graph 3](images/UI3.png)
+
+### Hardware
+
+![Hardware](images/hardware.png)
 
 ---
 
 ## ⚙️ Hardware
 
 - ESP32-S3
-- DHT11 *(low accuracy, slow response)*
+- DHT11 sensor *(low accuracy — upgrade recommended)*
 - Relay module (active LOW)
 - Heating bulb
 
 ---
 
-## 📸 Demo
+## ⚠️ Limitations
 
-![UI](images/ui.png)  
-![Hardware](images/hardware.png)
+- DHT11 has low accuracy and slow response
+- No PID control (uses hysteresis)
+- No relay minimum switching delay
+- No data logging
+- No OTA updates
 
 ---
 
 ## 🛠️ Future Improvements
 
-- Add relay minimum switching interval (anti-chatter lockout)
-- PID-based temperature control
+- Add relay switching delay (anti-chatter protection)
+- PID temperature control
 - Better sensor (SHT31 / BME280)
-- Data logging
+- Logging system
 - OTA updates
 
 ---
@@ -141,7 +140,7 @@ Being explicit here:
 
 Looking for feedback on:
 
-- control strategy (PID vs hysteresis)
+- control logic
 - relay protection strategies
-- system safety improvements
+- system safety
 - architecture decisions
